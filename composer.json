@@ -1,0 +1,22 @@
+{
+    "name":         "ailove-dev/ok-bundle",
+    "description":  "ok authentication bundle via FOSUserBundle",
+    "keywords":     ["Odnolkassniki", "Symfony2", "OK", "Authentication", "FOSUserBundle", "FOS", "FriendsOfSymfony"],
+    "type":         "library",
+    "homepage":     "https://github.com/ailove-dev/OKBundle.git",
+    "authors":      [
+        {
+            "name":      "Ailove"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.1",
+        "ailove-dev/ok-php-sdk": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "Ailove\\OKBundle": ""
+        }
+    },
+    "target-dir": "Ailove/OKBundle"
+}

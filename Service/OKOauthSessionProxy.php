@@ -15,6 +15,7 @@ class OKOauthSessionProxy
     protected $clientSecret;
     protected $dialogUrl;
     protected $redirectUri;
+    protected $redirectRoute;
     protected $scope;
     protected $responseType;
     protected $accessTokenUrl;
@@ -46,7 +47,7 @@ class OKOauthSessionProxy
      * @param string $accessTokenUrl Access token url
      * @param string $dialogUrl      Dialog url
      * @param string $responseType   Response type (for example: code)
-     * @param string $redirectUri    Redirect uri
+     * @param string $redirectRoute  Redirect route
      * @param string $scope          Access scope (for example: friends,video,offline)
      */
     public function __construct(
@@ -55,7 +56,7 @@ class OKOauthSessionProxy
         $accessTokenUrl,
         $dialogUrl,
         $responseType,
-        $redirectUri = null,
+        $redirectRoute = null,
         $scope = null
     )
     {
@@ -64,7 +65,7 @@ class OKOauthSessionProxy
         $this->accessTokenUrl = $accessTokenUrl;
         $this->dialogUrl = $dialogUrl;
         $this->responseType = $responseType;
-        $this->redirectUri = $redirectUri;
+        $this->redirectRoute = $redirectRoute;
         $this->scope = $scope;
     }
 
@@ -157,9 +158,17 @@ class OKOauthSessionProxy
             $this->redirectUri = $redirectUri;
         }
 
-        if (($this->authJson = $this->getPersistentData('authJson'))) {
+        if (null !== $redirectUri) {
+            $this->redirectUri = $redirectUri;
+        } else {
+            $this->redirectUri = $this->serviceContainer->get('router')->generate($this->getRedirectRoute(), array(), true);
+        }
+
+        $this->authJson = (array)json_decode($this->getPersistentData('authJson'));
+        if ($this->authJson && isset($this->authJson['access_token'])) {
             // Data already stored in the session
             $result = true;
+            $this->authJson =  $this->getPersistentData('authJson');
         } else {
             $code = $this->getRequest()->get('code');
 
@@ -172,6 +181,7 @@ class OKOauthSessionProxy
                         '&response_type=' . $this->responseType.
                         '&state=' . $this->getPersistentData('state');
 
+                var_dump($this->dialogUrl);die;
                 return new RedirectResponse($this->dialogUrl);
             } else {
                 // OK requires POST method
@@ -205,6 +215,11 @@ class OKOauthSessionProxy
         }
 
         return $result;
+    }
+
+    public function getRedirectRoute()
+    {
+        return $this->redirectRoute;
     }
 
     /**
@@ -244,7 +259,8 @@ class OKOauthSessionProxy
             $this->accessParams = json_decode($this->getAuthJson(), true);
         }
 
-        return $this->accessParams['access_token'];
+
+        return isset($this->accessParams['access_token']) ? $this->accessParams['access_token'] : '';
     }
 
     /**

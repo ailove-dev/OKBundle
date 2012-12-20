@@ -99,6 +99,7 @@ class OKUserProvider implements UserProviderInterface
                 $okUid = $this->oauthProxy->getUserId();
 
             } catch (\Exception $e) {
+                die($e->getMessage());
                 $okUid = null;
             }
 

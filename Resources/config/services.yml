@@ -10,7 +10,7 @@ services:
             accessTokenUrl: %ok.access_token_url%
             dialogUrl: %ok.dialog_url%
             responseType: 'code'
-            redirectUri: %ok.redirect_uri% 
+            redirectRoute: %ok.redirect_route%
             scope: %ok.scope%
         calls: 
             - [ setContainer, [ '@service_container' ] ]

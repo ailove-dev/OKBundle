@@ -1,34 +1,44 @@
 parameters:
-#    ok.example.class: Ailove\OKBundle\Example
+  ok.class.proxy:   Ailove\OKBundle\Service\OKOauthSessionProxy
+  ok.class.api:     OkPhpSdk
+  ok.class.entry_point: Ailove\OKBundle\Security\Firewall\OKEntryPoint
+  ok.response_type:  code
+  ok.access_token_url: http://api.odnoklassniki.ru/oauth/token.do
+  ok.dialog_url: http://www.odnoklassniki.ru/oauth/authorize
+  ok.scope: 'VALUABLE ACCESS'
 
 services:
+
     ok.oauth.proxy:
-        class: %ok.oauth_proxy_class%
-        arguments: 
-            clientId: %ok.app_id% 
-            clientSecret: %ok.app_secret%
-            accessTokenUrl: %ok.access_token_url%
-            dialogUrl: %ok.dialog_url%
-            responseType: 'code'
-            redirectRoute: %ok.redirect_route%
-            scope: %ok.scope%
-        calls: 
+        class: %ok.class.proxy%
+        arguments:
+            - { accessTokenUrl: %ok.access_token_url%, dialogUrl: %ok.dialog_url%, responseType: %ok.response_type%, redirectRoute: %ok.redirect_route% , scope: %ok.scope%, serviceContainer: @service_container }
+        calls:
             - [ setContainer, [ '@service_container' ] ]
             - [ setSdk, [ '@ok.api' ] ]
+
     ok.api:
-        class: 'OkPhpSdk'
-#        file: %ok.sdk_file%
+        class: %ok.class.api%
         arguments:
             clientId: %ok.app_id% 
             clientSecret: %ok.app_secret%
             appPublicKey: %ok.app_public_key%
+
     ok.user.provider: 
         class: 'Ailove\OKBundle\Security\User\OKUserProvider'
         arguments: [ '@ok.oauth.proxy', '@fos_user.user_manager' ]
+
     ok.auth.provider:
         class: 'Ailove\OKBundle\Security\Authentication\Provider\OKProvider'
         arguments: [ '@ok.oauth.proxy', '@ok.user.provider', '@security.user_checker' ]
+
     ok.firewall.listener:
         class: 'Ailove\OKBundle\Security\Firewall\OKListener'
         parent: security.authentication.listener.abstract
         abstract: true
+
+    ok.security.authentication.entry_point:
+        class: %ok.class.entry_point%
+        arguments: [ @service_container ]
+        tags:
+          -  { name: social.entryPoint }

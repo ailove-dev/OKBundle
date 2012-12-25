@@ -1,0 +1,9 @@
+_ok_security_check:
+    pattern: /login_check/
+    defaults: { _controller: 'FOSUserBundle:FOSUserSecurity:check' }
+_ok_connect:
+    pattern: /login/connect/
+    defaults: { _controller: 'OKBundle:Social:connect' }
+_ok_login:
+    pattern: /login/
+    defaults: { _controller: 'OKBundle:Social:login' }
